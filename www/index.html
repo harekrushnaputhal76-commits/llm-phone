@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="100% Offline On-Device AI Assistant">
+  <title>OfflineAI</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app-root" class="ios-app">
+    
+    <!-- FROSTED NAVIGATION HEADER -->
+    <header class="ios-header">
+      <div class="header-left">
+        <div class="app-icon-glyph">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a10 10 0 1 0 10 10H12V2z"></path>
+            <path d="M12 12 2.1 12.5"></path>
+            <path d="m4.5 15 7.5-3"></path>
+            <path d="m15 4.5-3 7.5"></path>
+          </svg>
+        </div>
+        <span class="app-title">Offline AI</span>
+      </div>
+
+      <div class="header-center">
+        <div id="header-model-pill" class="header-pill">
+          <span id="chat-active-indicator" class="pill-dot inactive"></span>
+          <span id="chat-active-model-name" class="pill-title">No Model</span>
+          <span id="chat-model-quant-pill" class="pill-badge" style="display: none;">GGUF</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <button id="btn-clear-chat" class="ios-icon-btn" title="Clear Conversation" aria-label="Clear Chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN VIEW CONTAINER -->
+    <main class="ios-content">
+
+      <!-- ============================================== -->
+      <!-- SCREEN 1: MODEL SETTINGS (MINIMALIST APPLE UI) -->
+      <!-- ============================================== -->
+      <section id="view-models" class="view-screen active" aria-label="Model Settings Screen">
+        <div class="settings-scroll-container">
+          
+          <!-- Hero Icon & Title -->
+          <div class="settings-hero">
+            <div class="hero-glyph-circle">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                <line x1="12" y1="22.08" x2="12" y2="12"></line>
+              </svg>
+            </div>
+            <h1 class="hero-title">Offline Intelligence</h1>
+            <p class="hero-subtitle">Select any .gguf model on your device to start chatting privately.</p>
+          </div>
+
+          <!-- THE PROMINENT APPLE IMPORT BUTTON -->
+          <div class="action-section">
+            <button id="btn-import-model" class="btn-apple-primary" type="button">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <span>Select Local Model</span>
+            </button>
+            <!-- Native file input fallback for browser preview -->
+            <input type="file" id="native-file-input" accept=".gguf,*" style="display: none;">
+          </div>
+
+          <!-- MODEL STATUS CARD -->
+          <div class="ios-card status-card">
+            <div class="card-header-row">
+              <span class="card-caption">MODEL STATUS</span>
+              <span id="model-status-chip" class="ios-status-badge inactive">Not Loaded</span>
+            </div>
+
+            <!-- Empty State -->
+            <div id="status-empty-state" class="status-content">
+              <div class="empty-status-row">
+                <div class="empty-icon-circle">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                  </svg>
+                </div>
+                <div class="empty-text-group">
+                  <div id="model-status-main-text" class="status-title">No model selected</div>
+                  <div class="status-sub">Tap "Select Local Model" to choose a .gguf file.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active / Ready State -->
+            <div id="status-active-state" class="status-content active-details" style="display: none;">
+              <div class="active-headline-row">
+                <div class="active-dot-ping"></div>
+                <div class="active-file-title" id="active-model-file-name">model.gguf</div>
+              </div>
+
+              <div class="active-tags-row">
+                <span id="active-model-size-badge" class="ios-tag">-- GB</span>
+                <span id="active-model-quant-badge" class="ios-tag">Q4_K_M</span>
+                <span class="ios-tag success">Ready</span>
+              </div>
+
+              <div class="active-path-container">
+                <span class="path-label">Storage Path</span>
+                <code id="active-model-native-path" class="path-code">/storage/emulated/0/...</code>
+              </div>
+
+              <div class="card-actions-group">
+                <button id="btn-reselect-model" class="btn-ios-secondary">Change</button>
+                <button id="btn-unlink-model" class="btn-ios-destructive">Unlink</button>
+                <button id="btn-jump-to-chat" class="btn-ios-accent">Open Chat</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="chat-active-model-desc" style="display: none;"></div>
+        </div>
+      </section>
+
+      <!-- ============================================== -->
+      <!-- SCREEN 2: AI CHAT (Apple Messages Style)       -->
+      <!-- ============================================== -->
+      <section id="view-chat" class="view-screen" aria-label="AI Chat Screen">
+        
+        <!-- Offline Warning Banner (shown when no model is linked) -->
+        <div id="chat-no-model-banner" class="ios-banner warning-banner">
+          <div class="banner-content">
+            <strong>No Model Selected</strong>
+            <span>Select a .gguf model in Model Settings to start chatting.</span>
+          </div>
+          <button id="btn-go-to-models" class="banner-action-btn">Select Model</button>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages-container" class="messages-container">
+          <div class="chat-row system-row">
+            <div class="system-pill">
+              <span>Private &bull; 100% On-Device &bull; No Internet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Generating / Thinking Indicator -->
+        <div id="chat-typing-indicator" class="typing-container" style="display: none;">
+          <div class="typing-bubble">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="typing-text">Generating...</span>
+          </div>
+        </div>
+
+        <!-- MODERN CHAT INPUT BAR (Apple Messages Style) -->
+        <footer class="ios-input-bar">
+          <form id="chat-form" class="chat-form" onsubmit="return false;">
+            <div class="input-capsule">
+              
+              <!-- (a) Plus / Attachment Button on Left -->
+              <button 
+                id="btn-attach" 
+                type="button" 
+                class="btn-attach-circle" 
+                title="Add Attachment" 
+                aria-label="Add Attachment"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+
+              <!-- (b) Rounded Text Input Field in Middle -->
+              <textarea
+                id="chat-textarea"
+                class="chat-textarea"
+                rows="1"
+                placeholder="Message Offline AI..."
+                disabled
+              ></textarea>
+              
+              <!-- (c) Upward Arrow Send Button on Right -->
+              <button 
+                id="btn-send-message" 
+                type="submit" 
+                class="btn-send-circle" 
+                disabled 
+                aria-label="Send Message"
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+              </button>
+
+              <button 
+                id="btn-stop-generation" 
+                type="button" 
+                class="btn-stop-circle" 
+                style="display: none;" 
+                aria-label="Stop Generation"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+                </svg>
+              </button>
+            </div>
+          </form>
+          <div class="footer-privacy-text">
+            On-device Llama.cpp &bull; Completely offline
+          </div>
+        </footer>
+      </section>
+
+    </main>
+
+    <!-- ============================================== -->
+    <!-- iOS BOTTOM ACTION SHEET (ATTACHMENT MENU)       -->
+    <!-- ============================================== -->
+    <div id="ios-action-sheet-backdrop" class="ios-sheet-backdrop" aria-hidden="true">
+      <div id="ios-action-sheet" class="ios-action-sheet" role="dialog" aria-modal="true" aria-label="Attachment Menu">
+        
+        <!-- Grab Handle Bar -->
+        <div class="sheet-handle-row">
+          <div class="sheet-grab-handle"></div>
+        </div>
+
+        <div class="sheet-title-row">
+          <span class="sheet-title">Add Attachment</span>
+        </div>
+
+        <!-- Options Group -->
+        <div class="sheet-group">
+          <!-- Option 1: Upload Document -->
+          <button id="btn-sheet-upload-doc" class="sheet-item-btn" type="button">
+            <div class="sheet-item-left">
+              <div class="sheet-icon-wrap doc-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+              </div>
+              <div class="sheet-text-group">
+                <span class="sheet-item-label">Upload Document</span>
+                <span class="sheet-item-sub">Extract text from PDF or TXT files</span>
+              </div>
+            </div>
+            <svg class="sheet-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+
+          <!-- Option 2: Upload Photo -->
+          <button id="btn-sheet-upload-photo" class="sheet-item-btn disabled-option" type="button">
+            <div class="sheet-item-left">
+              <div class="sheet-icon-wrap photo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <div class="sheet-text-group">
+                <span class="sheet-item-label">Upload Photo</span>
+                <span class="sheet-item-sub">Multimodal vision inference</span>
+              </div>
+            </div>
+            <span class="sheet-pill-tag">Coming Soon</span>
+          </button>
+        </div>
+
+        <!-- Separate Cancel Button Capsule -->
+        <button id="btn-sheet-cancel" class="sheet-cancel-btn" type="button">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Hidden Input for PDF / TXT Documents -->
+    <input type="file" id="document-file-input" accept=".pdf,.txt,text/plain,application/pdf" style="display: none;">
+
+    <!-- FROSTED BOTTOM TAB BAR (iOS Style) -->
+    <nav class="ios-tab-bar" aria-label="Tab Bar">
+      <button id="nav-btn-models" class="tab-item active" data-view="view-models">
+        <div class="tab-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </div>
+        <span class="tab-label">Model Settings</span>
+      </button>
+
+      <button id="nav-btn-chat" class="tab-item" data-view="view-chat">
+        <div class="tab-icon-wrap">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span id="nav-chat-status-dot" class="tab-dot inactive"></span>
+        </div>
+        <span class="tab-label">AI Chat</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "name": "llm",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Web assets ready in www/'",
+    "cap:sync": "cap sync",
+    "cap:sync:android": "cap sync android",
+    "cap:open:android": "cap open android",
+    "cap:run:android": "cap run android",
+    "start": "npx serve www -l 3000"
+  },
+  "keywords": [
+    "capacitor",
+    "offline-llm",
+    "llama-cpp",
+    "android",
+    "on-device-ai",
+    "gguf"
+  ],
+  "author": "OfflineAI Team",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/cli": "^8.5.3",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/file-picker": "npm:@capawesome/capacitor-file-picker@^8.1.0",
+    "@capacitor/filesystem": "^8.1.4",
+    "@capawesome/capacitor-file-picker": "^8.1.0",
+    "llama-cpp-capacitor": "^0.1.5"
+  }
+}
