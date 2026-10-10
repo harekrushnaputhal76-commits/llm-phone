@@ -26,7 +26,6 @@
     "@capacitor/android": "^8.5.3",
     "@capacitor/cli": "^8.5.3",
     "@capacitor/core": "^8.5.3",
-    "@capacitor/file-picker": "npm:@capawesome/capacitor-file-picker@^8.1.0",
     "@capacitor/filesystem": "^8.1.4",
     "@capawesome/capacitor-file-picker": "^8.1.0",
     "llama-cpp-capacitor": "^0.1.5"

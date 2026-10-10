@@ -9,7 +9,6 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
-    implementation project(':capacitor-file-picker')
     implementation project(':capacitor-filesystem')
     implementation project(':capawesome-capacitor-file-picker')
     implementation project(':llama-cpp-capacitor')
